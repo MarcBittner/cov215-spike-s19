@@ -1,0 +1,15 @@
+name: token-push
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          git config user.name bot; git config user.email bot@x
+          for b in e2e/token-z staging feature/token-y; do
+            git checkout -q -B "$b"; echo "$b $(date +%s)" > t.txt; git add t.txt; git commit -qm "$b"
+            if git push -q -f origin "$b" 2>err.txt; then echo "GITHUB_TOKEN push $b: ACCEPTED"; else echo "GITHUB_TOKEN push $b: REJECTED $(head -c 120 err.txt)"; fi
+          done
